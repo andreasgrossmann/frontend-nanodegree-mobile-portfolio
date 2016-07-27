@@ -501,10 +501,23 @@ function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
 
-  var items = document.querySelectorAll('.mover');
-  for (var i = 0; i < items.length; i++) {
+  // We know we're looking for a specific class
+  // So it's more efficient to use getElementsByClassName rather than querySelectorAll
+  var items = document.getElementsByClassName("mover");
+
+  // Storing items length in a variable is more efficient than accessing items.length as part of the for loop(s)
+  var itemsLength = items.length;
+
+  // Separate phase maths from style
+  // Fixes forced synchronous layout bottleneck
+  var phases = [];
+  for (var i = 0; i < itemsLength; i++) {
     var phase = Math.sin((document.body.scrollTop / 1250) + (i % 5));
-    items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
+    phases.push(phase);
+  }
+
+  for (var i = 0; i < itemsLength; i++) {
+    items[i].style.left = items[i].basicLeft + 100 * phases[i] + 'px';
   }
 
   // User Timing API to the rescue again. Seriously, it's worth learning.
