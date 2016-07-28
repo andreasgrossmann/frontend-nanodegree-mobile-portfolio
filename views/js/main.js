@@ -402,61 +402,35 @@ var pizzaElementGenerator = function(i) {
 var resizePizzas = function(size) {
   window.performance.mark("mark_start_resize");   // User Timing API function
 
-  // Changes the value for the size of the pizza above the slider
-  function changeSliderLabel(size) {
-    switch(size) {
-      case "1":
-        document.querySelector("#pizzaSize").innerHTML = "Small";
-        return;
-      case "2":
-        document.querySelector("#pizzaSize").innerHTML = "Medium";
-        return;
-      case "3":
-        document.querySelector("#pizzaSize").innerHTML = "Large";
-        return;
-      default:
-        console.log("bug in changeSliderLabel");
+  // Values required to update pizza size label and change pizza sizes
+  var pizzaSize = document.getElementById("pizzaSize");
+  var randomPizzaContainer = document.getElementsByClassName("randomPizzaContainer");
+  var randomPizzaContainerLength = randomPizzaContainer.length;
+
+  // Iterate over all pizzas and change their size
+  function newSize(percentage) {
+    for(var i = 0; i < randomPizzaContainerLength; i++) {
+      randomPizzaContainer[i].style.width = percentage;
     }
   }
 
-  changeSliderLabel(size);
-
-   // Returns the size difference to change a pizza element from one size to another. Called by changePizzaSlices(size).
-  function determineDx (elem, size) {
-    var oldWidth = elem.offsetWidth;
-    var windowWidth = document.querySelector("#randomPizzas").offsetWidth;
-    var oldSize = oldWidth / windowWidth;
-
-    // Changes the slider value to a percent width
-    function sizeSwitcher (size) {
-      switch(size) {
-        case "1":
-          return 0.25;
-        case "2":
-          return 0.3333;
-        case "3":
-          return 0.5;
-        default:
-          console.log("bug in sizeSwitcher");
-      }
-    }
-
-    var newSize = sizeSwitcher(size);
-    var dx = (newSize - oldSize) * windowWidth;
-
-    return dx;
+  // Update pizza size label and pass new size as percentage to newSize function
+  switch(size) {
+    case "1":
+      pizzaSize.innerHTML = "Small";
+      newSize("25%");
+      break;
+    case "2":
+      pizzaSize.innerHTML = "Medium";
+      newSize("33%");
+      break;
+    case "3":
+      pizzaSize.innerHTML = "Large";
+      newSize("50%");
+      break;
+    default:
+      console.log("bug in resizePizzas");
   }
-
-  // Iterates through pizza elements on the page and changes their widths
-  function changePizzaSizes(size) {
-    for (var i = 0; i < document.querySelectorAll(".randomPizzaContainer").length; i++) {
-      var dx = determineDx(document.querySelectorAll(".randomPizzaContainer")[i], size);
-      var newwidth = (document.querySelectorAll(".randomPizzaContainer")[i].offsetWidth + dx) + 'px';
-      document.querySelectorAll(".randomPizzaContainer")[i].style.width = newwidth;
-    }
-  }
-
-  changePizzaSizes(size);
 
   // User Timing API is awesome
   window.performance.mark("mark_end_resize");
@@ -467,9 +441,10 @@ var resizePizzas = function(size) {
 
 window.performance.mark("mark_start_generating"); // collect timing data
 
+// Keeping this outside the for loop is more efficient
+var pizzasDiv = document.getElementById("randomPizzas");
 // This for-loop actually creates and appends all of the pizzas when the page loads
 for (var i = 2; i < 100; i++) {
-  var pizzasDiv = document.getElementById("randomPizzas");
   pizzasDiv.appendChild(pizzaElementGenerator(i));
 }
 
@@ -496,23 +471,26 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 // The following code for sliding background pizzas was pulled from Ilya's demo found at:
 // https://www.igvita.com/slides/2012/devtools-tips-and-tricks/jank-demo.html
 
+// Keep this outside of the function so that we don't access the DOM every time the function is called
+// We know we're looking for a specific class
+// So it's more efficient to use getElementsByClassName rather than querySelectorAll
+var items = document.getElementsByClassName("mover");
+
 // Moves the sliding background pizzas based on scroll position
 function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
 
-  // We know we're looking for a specific class
-  // So it's more efficient to use getElementsByClassName rather than querySelectorAll
-  var items = document.getElementsByClassName("mover");
-
   // Storing items length in a variable is more efficient than accessing items.length as part of the for loop(s)
   var itemsLength = items.length;
 
+  // Declare this outside of the loop so that it doesn't get redeclared on every iteration
+  var phase;
   // Separate phase maths from style
   // Fixes forced synchronous layout bottleneck
   var phases = [];
   for (var i = 0; i < itemsLength; i++) {
-    var phase = Math.sin((document.body.scrollTop / 1250) + (i % 5));
+    phase = Math.sin((document.body.scrollTop / 1250) + (i % 5));
     phases.push(phase);
   }
 
@@ -537,15 +515,21 @@ window.addEventListener('scroll', updatePositions);
 document.addEventListener('DOMContentLoaded', function() {
   var cols = 8;
   var s = 256;
-  for (var i = 0; i < 200; i++) {
-    var elem = document.createElement('img');
+  // Declare this outside of the loop so that it doesn't get redeclared with every iteration
+  var elem;
+  // We don't need to query the DOM for this element on each iteration of the for loop
+  // Using getElementById is more efficient than querySelector here
+  var movingPizzas1 = document.getElementById("movingPizzas1");
+  // I don't think we need 200 here, 50 should be plenty
+  for (var i = 0; i < 50; i++) {
+    elem = document.createElement('img');
     elem.className = 'mover';
     elem.src = "images/pizza.png";
     elem.style.height = "100px";
     elem.style.width = "73.333px";
     elem.basicLeft = (i % cols) * s;
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
-    document.querySelector("#movingPizzas1").appendChild(elem);
+    movingPizzas1.appendChild(elem);
   }
   updatePositions();
 });
