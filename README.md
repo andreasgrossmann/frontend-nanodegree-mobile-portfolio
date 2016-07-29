@@ -1,3 +1,32 @@
+## How to run
+
+...
+
+## Live Version
+
+* ...
+
+## Performance Optimizations
+
+### index.html
+
+* Added CSS `media query` for `print` stylesheet and inlined contents of `main.css`
+* Set `analytics.js` to `async` and moved inline JS to the end of `body`
+* Added `webfontloader` JS library
+* Shrunk `pizzeria.jpg` to a more appropriate size.
+
+### pizza.html
+
+* Fixed forced synchronous layout in `updatePositions` by putting `phases` into an `array` and separating them from styling. Declared `phase` outside of the `for loop` so that it won't get redeclared with each iteration.
+* Rather than `querySelector` and `querySelectorAll` use the more specific `getElementByClassName` and `getElementById`
+* Refactored `resizePizzas` function. Now a single `switch statement` takes in the value from the slider, updates the size label and passes the size as a percentage to a function which iterates over all pizzas and changes them.
+* Took `var pizzasDiv` out of the `for loop` that creates pizzas when the page loads. Now the `DOM` won't be accessed on each iteration of this loop.
+* Took `var items` out of the `updatePositions` function so that the `DOM` won't be queried for this over and over again when scrolling.
+* Add `transform: translateZ(0);` and `backface-visibility: hidden;` to `.mover` class to trigger hardware acceleration
+* Declared `var elem` outside of the `for loop` so that it won't get redeclared with every iteration
+* Took `DOM` query for `#movingPizzas1` out of the `for loop` and saved it to a variable so that this query won't run with each iteration.
+* Calculate the number of pizzas in the background dynamically, based on screen size
+
 ## Website Performance Optimization portfolio project
 
 Your challenge, if you wish to accept it (and we sure hope you will), is to optimize this online portfolio for speed! In particular, optimize the critical rendering path and make this page render as quickly as possible by applying the techniques you've picked up in the [Critical Rendering Path course](https://www.udacity.com/course/ud884).
