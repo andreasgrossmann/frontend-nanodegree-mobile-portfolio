@@ -521,9 +521,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Declare this outside of the loop so that it doesn't get redeclared with every iteration
   var elem;
   // We don't need to query the DOM for this element on each iteration of the for loop
-  // Using getElementById is more efficient than querySelector here
+  // Using getElementById is more specific/efficient than querySelector here
   var movingPizzas1 = document.getElementById("movingPizzas1");
-  // I don't think we need 200 here, 50 should be plenty
   for (var i = 0; i < numberOfPizzas; i++) {
     elem = document.createElement('img');
     elem.className = 'mover';
